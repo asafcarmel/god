@@ -17,7 +17,6 @@
 # limitations under the License.
 #
 
-include_recipe "runit"
 
 gem_package "god" do
   action :install
@@ -38,7 +37,13 @@ template "/etc/god/master.god" do
 end
 
 if node['god']['init_style'] == 'runit'
+  include_recipe "runit"
   runit_service "god"
+
+  service "god" do
+    supports :status => true, :restart => true, :reload => true
+    reload_command "#{node['runit']['sv_bin']} hup #{node['runit']['service_dir']}/god"
+  end
 elsif node['god']['init_style'] == 'init'
   template "/etc/init.d/god" do
     source "god.init.erb"
