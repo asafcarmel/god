@@ -36,15 +36,7 @@ template "/etc/god/master.god" do
   mode 0755
 end
 
-if node['god']['init_style'] == 'runit'
-  include_recipe "runit"
-  runit_service "god"
-
-  service "god" do
-    supports :status => true, :restart => true, :reload => true
-    reload_command "#{node['runit']['sv_bin']} hup #{node['runit']['service_dir']}/god"
-  end
-elsif node['god']['init_style'] == 'init'
+if node['god']['init_style'] == 'init'
   template "/etc/init.d/god" do
     source "god.init.erb"
     owner "root"
@@ -54,5 +46,12 @@ elsif node['god']['init_style'] == 'init'
 
   service "god" do
     action :start
+  end
+else
+  include_recipe "runit"
+  runit_service "god"
+
+  service "god" do
+    supports :status => true, :restart => true, :reload => true
   end
 end
