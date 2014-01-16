@@ -47,7 +47,7 @@ if node['god']['init_style'] == 'init'
   service "god" do
     action :start
   end
-else
+else if node['god']['init_style'] == 'runit'
   include_recipe "runit"
   runit_service "god"
 
